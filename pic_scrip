@@ -1,0 +1,15 @@
+#!/bin/bash
+# small script to download NASA picture of the day
+
+INIT_PATH=$(pwd)
+PIC_PATH="/Users/krzystam/Projects/ruby"
+
+ECHO "**Looking for a picture of a day for you!**"
+
+cd "$PIC_PATH" &&
+find . -type f -iname \*.jpg -delete &&
+ruby nasa.rb &&
+open *.jpg &&
+cd "$INITPATH" &&
+
+ECHO "**Have a great day!**"
