@@ -2,13 +2,13 @@
 # small script to download NASA picture of the day
 
 INIT_PATH=$(pwd)
-PIC_PATH="/Users/krzystam/Projects/ruby"
+PIC_PATH="/Users/krzystam/Projects/ruby/nasa_pic_welcoming_script"
 
 ECHO "**Looking for a picture of a day for you!**"
 
 cd "$PIC_PATH" &&
 find . -type f -iname \*.jpg -delete &&
-ruby nasa.rb &&
+ruby pic_of_day.rb &&
 open *.jpg &&
 cd "$INITPATH" &&
 

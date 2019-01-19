@@ -3,19 +3,60 @@
 
 require 'net/http'
 require 'open-uri'
-require 'json'
+require 'date'
 
 class Nasa 
 
-	attr_accessor :api_key
+	attr_accessor :api_key, :host, :protocol
 
 	def initialize
 		@api_key = 'DkrUJssfe9sm97l5jiomSXPOI79JdDJBSwiCVCJk'
+		@host = 'api.nasa.gov'
+		@protocol = 'https'
 	end
 
 	def apod
-		uri = URI("https://api.nasa.gov/planetary/apod?api_key=#{api_key}")
+		path = 'planetary/apod'
+		param = ["api_key=#{api_key}"]
+		uri = construct_uri(path, param)
+		puts uri
 		response = connect('get', uri)
+	end
+
+	def coronal_mass_ejection
+		startDate = Date.today - 20
+		startDate.strftime "%Y-%m-%d"
+		endDate = Date.today + 10
+		endDate.strftime "%Y-%m-%d"
+		path = 'DONKI/CME'
+		params = ["startDate=#{startDate}", "endDate=#{endDate}", "api_key=#{@api_key}"]
+		uri = construct_uri(path, params)
+		puts uri
+		response = connect('get', uri)
+	end
+
+	def solar_flare
+		startDate = Date.today - 20
+		startDate.strftime "%Y-%m-%d"
+		endDate = Date.today + 10
+		endDate.strftime "%Y-%m-%d"
+		path = 'DONKI/FLR'
+		params = ["startDate=#{startDate}", "endDate=#{endDate}", "api_key=#{@api_key}"]
+		uri = construct_uri(path, params)
+		puts uri
+		response = connect('get', uri)
+	end
+
+	def construct_uri path, params
+		uri = "#{@protocol}://#{@host}/#{path}"
+		unless params.nil?
+			uri = uri + "?"
+			params.each do |param|
+				uri = uri + "#{param}&"
+			end
+			uri = uri.chop
+		end
+		uri = URI(uri)
 	end
 
 	def connect method, uri
@@ -24,7 +65,6 @@ class Nasa
 		Net::HTTP.start(uri.host, uri.port, {:use_ssl => uri.scheme == 'https'}) do |https|
 			response = https.request(request)
 			puts "The response code: " + response.code
-			response_code = response.code
 		end
 		response
 	end
@@ -40,32 +80,4 @@ class Nasa
 		request
 	end
 
-	def save_picture response
-		body = JSON.parse(response.body)
-
-		url = ''
-		body.each do |key, value|
-			if key == 'url'
-				url = value
-			end
-		end
-		
-		puts "picture url is: #{url}"
-
-		picture_name = /([A-Za-z0-9_\-]*.jpg)$/.match(url)[1]
-		
-		open(url) {|connection|
-		   File.open(picture_name, "wb") do |file|
-		     file.puts connection.read
-		   end
-		}
-	end
-
 end
-
-api = Nasa.new()
-picture_response = api.apod
-api.save_picture picture_response
-
-
-
